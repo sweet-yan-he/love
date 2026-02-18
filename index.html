@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>宇宙无敌小狗窝</title>
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#ff4d6d"/>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+  height:100vh;
+  overflow:hidden;
+  font-family:"Arial",sans-serif;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  color:white;
+  text-align:center;
+  background:black;
+}
+
+canvas{
+  position:fixed;
+  top:0;
+  left:0;
+  z-index:-1;
+}
+
+h1{
+  font-size:26px;
+  margin-bottom:15px;
+}
+
+.timer{
+  font-size:26px;
+  font-weight:bold;
+  margin-bottom:30px;
+  animation: heartbeat 1.2s infinite;
+}
+
+@keyframes heartbeat{
+  0%{transform:scale(1);}
+  25%{transform:scale(1.05);}
+  40%{transform:scale(1);}
+  60%{transform:scale(1.05);}
+  100%{transform:scale(1);}
+}
+
+.avatar-container{
+  display:flex;
+  gap:40px;
+  margin-bottom:40px;
+}
+
+.avatar{
+  width:110px;
+  height:110px;
+  border-radius:50%;
+  overflow:hidden;
+  border:3px solid white;
+  box-shadow:0 0 20px rgba(255,255,255,0.5);
+}
+
+.avatar img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+.heart{
+  position:absolute;
+  color:#ff4d6d;
+  font-size:20px;
+  animation:float 2s linear forwards;
+}
+
+@keyframes float{
+  0%{transform:translateY(0) scale(1);opacity:1;}
+  100%{transform:translateY(-200px) scale(1.6);opacity:0;}
+}
+
+@media(max-width:600px){
+  .avatar{width:80px;height:80px;}
+  h1{font-size:20px;}
+  .timer{font-size:18px;}
+}
+</style>
+</head>
+<body>
+
+<canvas id="stars"></canvas>
+
+<h1>❤️ 小颜 和 小贺 ❤️</h1>
+<div class="timer" id="timer"></div>
+
+<div class="avatar-container">
+  <div class="avatar"><img src="boy.jpg"></div>
+  <div class="avatar"><img src="girl.jpg"></div>
+</div>
+
+<script>
+// ===== 修改这里 =====
+const startDate = new Date("2026-01-22 21:05:20");
+// ===================
+
+// 补零
+function pad(n){return n<10?"0"+n:n;}
+
+function updateTime(){
+  const now=new Date();
+  const diff=Math.floor((now-startDate)/1000);
+
+  const days=Math.floor(diff/(24*3600));
+  const hours=Math.floor((diff%(24*3600))/3600);
+  const minutes=Math.floor((diff%3600)/60);
+  const seconds=diff%60;
+
+  document.getElementById("timer").innerHTML=
+    `已经在一起${days} 天 ${pad(hours)} 时 ${pad(minutes)} 分 ${pad(seconds)} 秒啦🎊`;
+}
+
+setInterval(updateTime,1000);
+updateTime();
+
+// 点击爱心
+document.addEventListener("click",e=>{
+  const heart=document.createElement("div");
+  heart.className="heart";
+  heart.innerHTML="❤️";
+  heart.style.left=e.clientX+"px";
+  heart.style.top=e.clientY+"px";
+  document.body.appendChild(heart);
+  setTimeout(()=>heart.remove(),2000);
+});
+
+// 星空粒子
+const canvas=document.getElementById("stars");
+const ctx=canvas.getContext("2d");
+canvas.width=window.innerWidth;
+canvas.height=window.innerHeight;
+
+let stars=[];
+for(let i=0;i<150;i++){
+  stars.push({
+    x:Math.random()*canvas.width,
+    y:Math.random()*canvas.height,
+    r:Math.random()*2,
+    d:Math.random()*1
+  });
+}
+
+function drawStars(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle="white";
+  ctx.beginPath();
+  for(let i=0;i<stars.length;i++){
+    let s=stars[i];
+    ctx.moveTo(s.x,s.y);
+    ctx.arc(s.x,s.y,s.r,0,Math.PI*2,true);
+  }
+  ctx.fill();
+  moveStars();
+}
+
+function moveStars(){
+  for(let i=0;i<stars.length;i++){
+    stars[i].y+=stars[i].d;
+    if(stars[i].y>canvas.height){
+      stars[i].y=0;
+      stars[i].x=Math.random()*canvas.width;
+    }
+  }
+}
+
+setInterval(drawStars,33);
+
+// 注册 Service Worker
+if("serviceWorker" in navigator){
+  navigator.serviceWorker.register("sw.js");
+}
+</script>
+
+</body>
+</html>
